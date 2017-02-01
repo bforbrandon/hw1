@@ -71,7 +71,7 @@ struct Particle {
 };
 
 struct Game {
-    Shape box;
+    Shape box[5];
     Particle particle[MAX_PARTICLES];
     int n;
     int bubbler;
@@ -100,22 +100,41 @@ int main(void)
     game.n=0;
 
     //declare a box shape
-    game.box.width = 100;
-    game.box.height = 10;
-    game.box.center.x = 120 + 5*65;
-    game.box.center.y = 500 - 5*60;
+    game.box[0].width = 100;
+    game.box[0].height = 10;
+    game.box[0].center.x = 120 + 5*65;
+    game.box[0].center.y = 500 - 5*60;
 
+    game.box[1].width = 100;
+    game.box[1].height = 10;
+    game.box[1].center.x = 120 + 4*65;
+    game.box[1].center.y = 500 - 4*60;
+
+    game.box[2].width = 100;
+    game.box[2].height = 10;
+    game.box[2].center.x = 120 + 3*65;
+    game.box[2].center.y = 500 - 3*60;
+
+    game.box[3].width = 100;
+    game.box[3].height = 10;
+    game.box[3].center.x = 120 + 2*65;
+    game.box[3].center.y = 500 - 2*60;
+
+    game.box[4].width = 100;
+    game.box[4].height = 10;
+    game.box[4].center.x = 120 + 1*65;
+    game.box[4].center.y = 500 - 1*60;
     //start animation
     while (!done) {
-        while (XPending(dpy)) {
-            XEvent e;
-            XNextEvent(dpy, &e);
-            check_mouse(&e, &game);
-            done = check_keys(&e, &game);
-        }
-        movement(&game);
-        render(&game);
-        glXSwapBuffers(dpy, win);
+	while (XPending(dpy)) {
+	    XEvent e;
+	    XNextEvent(dpy, &e);
+	    check_mouse(&e, &game);
+	    done = check_keys(&e, &game);
+	}
+	movement(&game);
+	render(&game);
+	glXSwapBuffers(dpy, win);
     }
     cleanupXWindows();
     return 0;
@@ -142,23 +161,23 @@ void initXWindows(void)
     int w=WINDOW_WIDTH, h=WINDOW_HEIGHT;
     dpy = XOpenDisplay(NULL);
     if (dpy == NULL) {
-        std::cout << "\n\tcannot connect to X server\n" << std::endl;
-        exit(EXIT_FAILURE);
+	std::cout << "\n\tcannot connect to X server\n" << std::endl;
+	exit(EXIT_FAILURE);
     }
     Window root = DefaultRootWindow(dpy);
     XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
     if (vi == NULL) {
-        std::cout << "\n\tno appropriate visual found\n" << std::endl;
-        exit(EXIT_FAILURE);
+	std::cout << "\n\tno appropriate visual found\n" << std::endl;
+	exit(EXIT_FAILURE);
     } 
     Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
     XSetWindowAttributes swa;
     swa.colormap = cmap;
     swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-        ButtonPress | ButtonReleaseMask | PointerMotionMask |
-        StructureNotifyMask | SubstructureNotifyMask;
+	ButtonPress | ButtonReleaseMask | PointerMotionMask |
+	StructureNotifyMask | SubstructureNotifyMask;
     win = XCreateWindow(dpy, root, 0, 0, w, h, 0, vi->depth,
-            InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+	    InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
     set_title();
     glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
     glXMakeCurrent(dpy, win, glc);
@@ -180,7 +199,7 @@ void init_opengl(void)
 void makeParticle(Game *game, int x, int y)
 {
     if (game->n >= MAX_PARTICLES)
-        return;
+	return;
     std::cout << "makeParticle() " << x << " " << y << std::endl;
     //position of particle
     Particle *p = &game->particle[game->n];
@@ -198,36 +217,36 @@ void check_mouse(XEvent *e, Game *game)
     //static int n = 0;
 
     if (e->type == ButtonRelease) {
-        return;
+	return;
     }
     if (e->type == ButtonPress) {
-        if (e->xbutton.button==1) {
-            //Left button was pressed
-            int y = WINDOW_HEIGHT - e->xbutton.y;
-            for(int i=0; i<10; i++){
-                makeParticle(game, e->xbutton.x, y);
-            }
-            return;
-        }
-        if (e->xbutton.button==3) {
-            //Right button was pressed
-            return;
-        }
+	if (e->xbutton.button==1) {
+	    //Left button was pressed
+	    int y = WINDOW_HEIGHT - e->xbutton.y;
+	    for(int i=0; i<10; i++){
+		makeParticle(game, e->xbutton.x, y);
+	    }
+	    return;
+	}
+	if (e->xbutton.button==3) {
+	    //Right button was pressed
+	    return;
+	}
     }
     //Did the mouse move?
     if (savex != e->xbutton.x || savey != e->xbutton.y) {
-        savex = e->xbutton.x;
-        savey = e->xbutton.y;
-        int y = WINDOW_HEIGHT - e->xbutton.y;
-        if(game->bubbler == 0){
-            game->mouse[0] = savex;
-            game->mouse[1] = y;
-        }
-        for(int i=0; i<5; i++){
-            makeParticle(game, e->xbutton.x, y);
-        }
-        //if (++n < 10)
-        //    return;
+	savex = e->xbutton.x;
+	savey = e->xbutton.y;
+	int y = WINDOW_HEIGHT - e->xbutton.y;
+	if(game->bubbler == 0){
+	    game->mouse[0] = savex;
+	    game->mouse[1] = y;
+	}
+	for(int i=0; i<5; i++){
+	    makeParticle(game, e->xbutton.x, y);
+	}
+	//if (++n < 10)
+	//    return;
     }
 }
 
@@ -235,14 +254,14 @@ int check_keys(XEvent *e, Game *game)
 {
     //Was there input from the keyboard?
     if (e->type == KeyPress) {
-        int key = XLookupKeysym(&e->xkey, 0);
-        if (key == XK_b){
-            game->bubbler ^= 1; 
-        }
-        if (key == XK_Escape) {
-            return 1;
-        }
-        //You may check other keys here.
+	int key = XLookupKeysym(&e->xkey, 0);
+	if (key == XK_b){
+	    game->bubbler ^= 1; 
+	}
+	if (key == XK_Escape) {
+	    return 1;
+	}
+	//You may check other keys here.
 
 
 
@@ -255,33 +274,33 @@ void movement(Game *game)
     Particle *p;
 
     if (game->n <= 0)
-        return;
+	return;
     if (game->bubbler != 0){
-        makeParticle(game, game->mouse[0], game->mouse[1]);
+	makeParticle(game, game->mouse[0], game->mouse[1]);
     }
     for(int i=0; i<game->n; i++){
-        p = &game->particle[i];
-        p->velocity.y -= GRAVITY;
-        p->s.center.x += p->velocity.x;
-        p->s.center.y += p->velocity.y;
+	p = &game->particle[i];
+	p->velocity.y -= GRAVITY;
+	p->s.center.x += p->velocity.x;
+	p->s.center.y += p->velocity.y;
 
-        //check for collision with shapes...
-        Shape *s;
-        s = &game->box;
-        if (p->s.center.y < s->center.y + s->height &&
-                p->s.center.x >= s->center.x - s->width &&
-                p->s.center.x <= s->center.x + s->width){
-            p->s.center.y = s->center.y + s->height;
-            p->velocity.y = -p->velocity.y * 0.8f;
-            p->velocity.x += 0.5f;;
-        } 
+	//check for collision with shapes...
+	Shape *s;
+	s = &game->box[i];
+	if (p->s.center.y < s->center.y + s->height &&
+		p->s.center.x >= s->center.x - s->width &&
+		p->s.center.x <= s->center.x + s->width){
+	    p->s.center.y = s->center.y + s->height;
+	    p->velocity.y = -p->velocity.y * 0.8f;
+	    p->velocity.x += 0.5f;;
+	} 
 
 
-        //check for off-screen
-        if (p->s.center.y < 0.0) {
-            std::cout << "off screen" << std::endl;
-            game->particle[i] = game->particle[--game->n];
-        }
+	//check for off-screen
+	if (p->s.center.y < 0.0) {
+	    std::cout << "off screen" << std::endl;
+	    game->particle[i] = game->particle[--game->n];
+	}
     }
 }
 
@@ -292,21 +311,23 @@ void render(Game *game)
     //Draw shapes...
 
     //draw box
-    Shape *s;
-    glColor3ub(90,140,90);
-    s = &game->box;
-    glPushMatrix();
-    glTranslatef(s->center.x, s->center.y, s->center.z);
-    w = s->width;
-    h = s->height;
-    glBegin(GL_QUADS);
-    glVertex2i(-w,-h);
-    glVertex2i(-w, h);
-    glVertex2i( w, h);
-    glVertex2i( w,-h);
-    glEnd();
-    glPopMatrix();
-
+    for(int i=0; i<=5; i++)
+    {
+	Shape *s;
+	glColor3ub(90,140,90);
+	s = &game->box[i];
+	glPushMatrix();
+	glTranslatef(s->center.x, s->center.y, s->center.z);
+	w = s->width;
+	h = s->height;
+	glBegin(GL_QUADS);
+	glVertex2i(-w,-h);
+	glVertex2i(-w, h);
+	glVertex2i( w, h);
+	glVertex2i( w,-h);
+	glEnd();
+	glPopMatrix();
+    }
 
     for(int i=0; i<game->n; i++){
 	//draw all particles here
