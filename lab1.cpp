@@ -278,6 +278,7 @@ void movement(Game *game)
     if (game->bubbler != 0){
 	makeParticle(game, game->mouse[0], game->mouse[1]);
     }
+    //game->n
     for(int i=0; i<game->n; i++){
 	p = &game->particle[i];
 	p->velocity.y -= GRAVITY;
