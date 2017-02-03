@@ -40,15 +40,18 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include "ppm.h"
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-#define MAX_PARTICLES 10000
-#define GRAVITY 0.25
+#define MAX_PARTICLES 20000
+#define GRAVITY .8
 #define rnd() (float)rand() / (float)RAND_MAX
 
 //X Windows variables
+#define UMBRELLA_FLAT  0
+#define UMBRELLA_ROUND 1
 Display *dpy;
 Window win;
 GLXContext glc;
@@ -69,7 +72,6 @@ struct Particle {
     Shape s;
     Vec velocity;
 };
-
 struct Game {
     Shape box[5];
     Particle particle[MAX_PARTICLES];
@@ -78,6 +80,17 @@ struct Game {
     int mouse[2];
     Game() { n=0; bubbler=0;  }
 };
+/*
+typedef struct t_umbrella {
+        int shape;
+        Vec pos;
+        Vec lastpos;
+        float width;
+        float width2;
+        float radius;
+} Umbrella;
+Umbrella umbrella;
+*/
 
 //Function prototypes
 void initXWindows(void);
@@ -100,30 +113,30 @@ int main(void)
     game.n=0;
 
     //declare a box shape
-    game.box[0].width = 100;
-    game.box[0].height = 10;
-    game.box[0].center.x = 120 + 5*65;
-    game.box[0].center.y = 500 - 5*60;
+    game.box[4].width = 100;
+    game.box[4].height = 10;
+    game.box[4].center.x = 120 + 5*65;
+    game.box[4].center.y = 500 - 5*60;
 
-    game.box[1].width = 100;
-    game.box[1].height = 10;
-    game.box[1].center.x = 120 + 4*65;
-    game.box[1].center.y = 500 - 4*60;
+    game.box[3].width = 100;
+    game.box[3].height = 10;
+    game.box[3].center.x = 120 + 4*65;
+    game.box[3].center.y = 500 - 4*60;
 
     game.box[2].width = 100;
     game.box[2].height = 10;
     game.box[2].center.x = 120 + 3*65;
     game.box[2].center.y = 500 - 3*60;
 
-    game.box[3].width = 100;
-    game.box[3].height = 10;
-    game.box[3].center.x = 120 + 2*65;
-    game.box[3].center.y = 500 - 2*60;
+    game.box[1].width = 100;
+    game.box[1].height = 10;
+    game.box[1].center.x = 120 + 2*65;
+    game.box[1].center.y = 500 - 2*60;
 
-    game.box[4].width = 100;
-    game.box[4].height = 10;
-    game.box[4].center.x = 120 + 1*65;
-    game.box[4].center.y = 500 - 1*60;
+    game.box[0].width = 100;
+    game.box[0].height = 10;
+    game.box[0].center.x = 120 + 1*65;
+    game.box[0].center.y = 500 - 1*60;
     //start animation
     while (!done) {
 	while (XPending(dpy)) {
@@ -194,6 +207,9 @@ void init_opengl(void)
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
+// umbrellaImage    = ppm6GetImage("./images/umbrella.ppm");
+// glGenTextures(1, &umbrellaTexture);
+
 }
 
 void makeParticle(Game *game, int x, int y)
@@ -206,7 +222,7 @@ void makeParticle(Game *game, int x, int y)
     p->s.center.x = x;
     p->s.center.y = y;
     p->velocity.y =  rnd() * 4.0;
-    p->velocity.x =  rnd() * 0.5 - 0.25;
+    p->velocity.x =  rnd() * 2;
     game->n++;
 }
 
@@ -286,16 +302,18 @@ void movement(Game *game)
 	p->s.center.y += p->velocity.y;
 
 	//check for collision with shapes...
+	for (int j=0; j<5; j++){
 	Shape *s;
-	s = &game->box[i];
+	s = &game->box[j];
 	if (p->s.center.y < s->center.y + s->height &&
 		p->s.center.x >= s->center.x - s->width &&
 		p->s.center.x <= s->center.x + s->width){
 	    p->s.center.y = s->center.y + s->height;
-	    p->velocity.y = -p->velocity.y * 0.8f;
-	    p->velocity.x += 0.5f;;
+	    p->velocity.y = -p->velocity.y * 0.4f;
+	    p->velocity.x += 0.1f;
+	    
 	} 
-
+	}
 
 	//check for off-screen
 	if (p->s.center.y < 0.0) {
