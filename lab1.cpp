@@ -40,7 +40,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
-#include "ppm.h"
+#include "fonts.h"
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -150,6 +150,7 @@ int main(void)
 	glXSwapBuffers(dpy, win);
     }
     cleanupXWindows();
+    cleanup_fonts();
     return 0;
 }
 
@@ -209,7 +210,8 @@ void init_opengl(void)
     glClearColor(0.1, 0.1, 0.1, 1.0);
 // umbrellaImage    = ppm6GetImage("./images/umbrella.ppm");
 // glGenTextures(1, &umbrellaTexture);
-
+   glEnable(GL_TEXTURE_2D);
+   initialize_fonts();
 }
 
 void makeParticle(Game *game, int x, int y)
