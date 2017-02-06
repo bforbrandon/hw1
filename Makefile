@@ -4,8 +4,8 @@
 all: hw1
 
 
-lab1: hw1.cpp fonts.h defs.h
-	g++ hw1.cpp libggfonts.a -Wall -olab1 -lX11 -lGL -lGLU -lm
+hw1: hw1.cpp fonts.h defs.h
+	g++ hw1.cpp libggfonts.a -Wall -Wextra -ohw1 -lX11 -lGL -lGLU -lm -lrt
 
 clean:
 	rm -f hw1

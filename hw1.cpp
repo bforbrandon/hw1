@@ -81,16 +81,16 @@ struct Game {
     Game() { n=0; bubbler=0;  }
 };
 /*
-typedef struct t_umbrella {
-        int shape;
-        Vec pos;
-        Vec lastpos;
-        float width;
-        float width2;
-        float radius;
-} Umbrella;
-Umbrella umbrella;
-*/
+   typedef struct t_umbrella {
+   int shape;
+   Vec pos;
+   Vec lastpos;
+   float width;
+   float width2;
+   float radius;
+   } Umbrella;
+   Umbrella umbrella;
+   */
 
 //Function prototypes
 void initXWindows(void);
@@ -100,7 +100,7 @@ void check_mouse(XEvent *e, Game *game);
 int check_keys(XEvent *e, Game *game);
 void movement(Game *game);
 void render(Game *game);
-
+int xres=640, yres=480;
 
 int main(void)
 {
@@ -168,11 +168,13 @@ void cleanupXWindows(void)
     XCloseDisplay(dpy);
 }
 
+
 void initXWindows(void)
 {
     //do not change
     GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
     int w=WINDOW_WIDTH, h=WINDOW_HEIGHT;
+
     dpy = XOpenDisplay(NULL);
     if (dpy == NULL) {
 	std::cout << "\n\tcannot connect to X server\n" << std::endl;
@@ -208,10 +210,10 @@ void init_opengl(void)
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
-// umbrellaImage    = ppm6GetImage("./images/umbrella.ppm");
-// glGenTextures(1, &umbrellaTexture);
-   glEnable(GL_TEXTURE_2D);
-   initialize_fonts();
+    // umbrellaImage    = ppm6GetImage("./images/umbrella.ppm");
+    // glGenTextures(1, &umbrellaTexture);
+    glEnable(GL_TEXTURE_2D);
+    initialize_fonts();
 }
 
 void makeParticle(Game *game, int x, int y)
@@ -305,16 +307,16 @@ void movement(Game *game)
 
 	//check for collision with shapes...
 	for (int j=0; j<5; j++){
-	Shape *s;
-	s = &game->box[j];
-	if (p->s.center.y < s->center.y + s->height &&
-		p->s.center.x >= s->center.x - s->width &&
-		p->s.center.x <= s->center.x + s->width){
-	    p->s.center.y = s->center.y + s->height;
-	    p->velocity.y = -p->velocity.y * 0.4f;
-	    p->velocity.x += 0.1f;
-	    
-	} 
+	    Shape *s;
+	    s = &game->box[j];
+	    if (p->s.center.y < s->center.y + s->height &&
+		    p->s.center.x >= s->center.x - s->width &&
+		    p->s.center.x <= s->center.x + s->width){
+		p->s.center.y = s->center.y + s->height;
+		p->velocity.y = -p->velocity.y * 0.4f;
+		p->velocity.x += 0.1f;
+
+	    } 
 	}
 
 	//check for off-screen
@@ -328,27 +330,48 @@ void movement(Game *game)
 void render(Game *game)
 {
     float w, h;
-    glClear(GL_COLOR_BUFFER_BIT);
-    //Draw shapes...
 
+    Rect r;
+    glClear(GL_COLOR_BUFFER_BIT);
     //draw box
-    for(int i=0; i<=5; i++)
-    {
-	Shape *s;
-	glColor3ub(90,140,90);
-	s = &game->box[i];
-	glPushMatrix();
-	glTranslatef(s->center.x, s->center.y, s->center.z);
-	w = s->width;
-	h = s->height;
-	glBegin(GL_QUADS);
-	glVertex2i(-w,-h);
-	glVertex2i(-w, h);
-	glVertex2i( w, h);
-	glVertex2i( w,-h);
-	glEnd();
-	glPopMatrix();
+
+    	glColor3ub(90,140,90);
+    for(int i=0; i<5; i++){
+    	Shape *s;
+    	s = &game->box[i];
+    	glPushMatrix();
+    	glTranslatef(s->center.x, s->center.y, s->center.z);
+    	w = s->width;
+    	h = s->height;
+    	glBegin(GL_QUADS);
+    	glVertex2i(-w,-h);
+    	glVertex2i(-w, h);
+    	glVertex2i( w, h);
+    	glVertex2i( w,-h);
+    	glEnd();
+    	glPopMatrix();
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    unsigned int color = 0x8DEEEE;
+    r.bot = WINDOW_HEIGHT - 20;
+    r.left = 10;
+    r.center = 0;
+    ggprint12(&r, 30, color, "Waterfall Model Brandon Martinez %s");
+    r.bot = WINDOW_HEIGHT - 170;
+    r.left = 110;
+    ggprint12(&r, 30, color, "Requirements %s");
+    r.bot = WINDOW_HEIGHT - 230;
+    r.left = 210;
+    ggprint12(&r, 30, color, "Design  %s");
+    r.bot = WINDOW_HEIGHT - 290;
+    r.left = 310;
+    ggprint12(&r, 30, color, "Coding  %s");
+    r.bot = WINDOW_HEIGHT - 350;
+    r.left = 360;
+    ggprint12(&r, 30, color, "Testing  %s");
+    r.bot = WINDOW_HEIGHT - 410;
+    r.left = 420;
+    ggprint12(&r, 30, color, "Maintenance  %s");
 
     for(int i=0; i<game->n; i++){
 	//draw all particles here
@@ -366,6 +389,3 @@ void render(Game *game)
 	glPopMatrix();
     }
 }
-
-
-
