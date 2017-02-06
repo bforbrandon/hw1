@@ -222,12 +222,16 @@ void makeParticle(Game *game, int x, int y)
 	return;
     std::cout << "makeParticle() " << x << " " << y << std::endl;
     //position of particle
+    int t=0;
+    while(t<4){
     Particle *p = &game->particle[game->n];
     p->s.center.x = x;
     p->s.center.y = y;
     p->velocity.y =  rnd() * 4.0;
     p->velocity.x =  rnd() * 2;
     game->n++;
+    t++;
+    }
 }
 
 void check_mouse(XEvent *e, Game *game)
